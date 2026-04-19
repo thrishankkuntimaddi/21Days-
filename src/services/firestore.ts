@@ -32,7 +32,16 @@ export async function createBlock(
 export function subscribeBlocks(userId: string, cb: (blocks: Block[]) => void) {
   const q = query(blocksRef(userId), orderBy('createdAt', 'desc'));
   return onSnapshot(q, snap => {
-    const blocks: Block[] = snap.docs.map(d => ({ id: d.id, ...d.data() } as Block));
+    const blocks: Block[] = snap.docs
+      .map(d => ({ id: d.id, ...d.data() } as Block))
+      // Filter out malformed docs that lack required fields
+      .filter(b =>
+        b.startDate &&
+        typeof b.startDate === 'string' &&
+        typeof b.duration === 'number' &&
+        b.duration > 0 &&
+        Array.isArray(b.tasks)
+      );
     cb(blocks);
   });
 }
