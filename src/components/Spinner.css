@@ -1,11 +1,12 @@
-.spinner {
-  border: 2px solid rgba(124,92,252,0.2);
-  border-top-color: #7c5cfc;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: inline-block;
-}
-
+/* Spinner — Monolith (square rotating border) */
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.spinner {
+  border: 2px solid var(--border-subtle);
+  border-top-color: var(--accent);
+  border-radius: 0;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
 }

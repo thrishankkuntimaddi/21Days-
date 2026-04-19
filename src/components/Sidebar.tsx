@@ -2,14 +2,14 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  LayoutDashboard, LogOut, Flame,
-} from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { LayoutDashboard, LogOut, Flame, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './Sidebar.css';
 
 export default function Sidebar() {
   const { user } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -25,7 +25,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="sidebar-logo">
         <div className="logo-icon">
-          <Flame size={18} color="#7c5cfc" />
+          <Flame size={16} color="var(--accent)" />
         </div>
         <span className="logo-text">21Days<span>+</span></span>
       </div>
@@ -33,10 +33,18 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="sidebar-nav">
         <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <LayoutDashboard size={18} />
+          <LayoutDashboard size={16} />
           <span>Dashboard</span>
         </NavLink>
       </nav>
+
+      {/* Theme toggle */}
+      <button className="sidebar-theme-toggle" onClick={toggle}>
+        {theme === 'dark'
+          ? <><Sun size={14} /> Light Mode</>
+          : <><Moon size={14} /> Dark Mode</>
+        }
+      </button>
 
       {/* User */}
       <div className="sidebar-footer">
@@ -47,7 +55,7 @@ export default function Sidebar() {
           </div>
         </div>
         <button className="sidebar-signout" onClick={handleLogout} title="Sign out">
-          <LogOut size={16} />
+          <LogOut size={14} />
         </button>
       </div>
     </aside>

@@ -1,101 +1,115 @@
-/* HeatmapChart */
+/* HeatmapChart — Monolith */
 .hm-root {}
 .hm-title {
   font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
   margin-bottom: 4px;
+  text-transform: uppercase;
 }
 .hm-subtitle {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
 .hm-grid {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 4px;
+  margin-bottom: 14px;
   overflow-x: auto;
-  padding-bottom: 4px;
 }
 .hm-week {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-.hm-week-label {
-  font-size: 10px;
-  color: var(--text-muted);
-  width: 22px;
-  flex-shrink: 0;
-  font-weight: 600;
-}
-.hm-cells {
-  display: flex;
   gap: 4px;
 }
+.hm-week-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  width: 20px;
+  flex-shrink: 0;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hm-cells { display: flex; gap: 3px; }
+
 .hm-cell {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
+  width: 34px;
+  height: 34px;
   cursor: default;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.1s ease;
   flex-shrink: 0;
+  border: 1px solid transparent;
 }
-.hm-cell:hover {
-  transform: scale(1.15);
-  z-index: 10;
-}
+.hm-cell:hover { transform: scale(1.12); z-index: 10; }
 .hm-cell-label {
-  font-size: 9px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  font-size: 8px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.4);
   user-select: none;
+  letter-spacing: 0.02em;
+}
+[data-theme="light"] .hm-cell-label {
+  color: rgba(0,0,0,0.35);
 }
 
-/* Colors */
-.hm-future  { background: var(--bg-hover); border: 1px solid var(--border-subtle); }
-.hm-empty   { background: var(--bg-hover); border: 1px solid var(--border-subtle); }
-.hm-miss    { background: rgba(239,68,68,0.35); border: 1px solid rgba(239,68,68,0.2); }
-.hm-low     { background: rgba(245,158,11,0.25); border: 1px solid rgba(245,158,11,0.15); }
-.hm-mid     { background: rgba(245,158,11,0.45); border: 1px solid rgba(245,158,11,0.3); }
-.hm-high    { background: rgba(34,197,94,0.35); border: 1px solid rgba(34,197,94,0.2); }
-.hm-full    { background: rgba(34,197,94,0.75); border: 1px solid rgba(34,197,94,0.5); box-shadow: 0 0 8px rgba(34,197,94,0.3); }
-.hm-today   { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Cell colours */
+.hm-future  { background: var(--bg-elevated);           border-color: var(--border-subtle); }
+.hm-empty   { background: var(--bg-elevated);           border-color: var(--border-subtle); }
+.hm-miss    { background: rgba(239,68,68,0.3);          border-color: rgba(239,68,68,0.2); }
+.hm-low     { background: rgba(245,158,11,0.25);        border-color: rgba(245,158,11,0.15); }
+.hm-mid     { background: rgba(245,158,11,0.5);         border-color: rgba(245,158,11,0.3); }
+.hm-high    { background: rgba(34,197,94,0.35);         border-color: rgba(34,197,94,0.2); }
+.hm-full    { background: rgba(34,197,94,0.75);         border-color: var(--green); }
+.hm-today   { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* Legend */
 .hm-legend {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
-.hm-legend-label { font-size: 11px; color: var(--text-muted); }
-.hm-legend-cells {
-  display: flex;
-  gap: 4px;
+.hm-legend-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
+.hm-legend-cells { display: flex; gap: 3px; }
 .hm-legend-cell {
-  width: 20px !important;
-  height: 20px !important;
+  width: 18px !important;
+  height: 18px !important;
   cursor: default;
 }
 .hm-legend-cell:hover { transform: none !important; }
 
 .hm-pct-legend {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
+}
+.hm-pct-legend span {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 600px) {
-  .hm-cell { width: 28px; height: 28px; }
-  .hm-cell-label { font-size: 8px; }
+  .hm-cell { width: 26px; height: 26px; }
+  .hm-cell-label { font-size: 7px; }
 }

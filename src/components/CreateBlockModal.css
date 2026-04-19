@@ -1,25 +1,26 @@
+/* CreateBlockModal — Monolith */
 .cbm-box {
-  max-width: 580px;
+  /* inherits from .modal-box */
 }
 
 .cbm-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 28px;
-  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 .cbm-header-left {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
 }
 .cbm-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
+  width: 36px;
+  height: 36px;
   background: var(--accent-dim);
-  border: 1px solid rgba(124,92,252,0.25);
+  border: 1px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,40 +28,34 @@
 }
 .cbm-title {
   font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .cbm-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  font-weight: 500;
 }
 .cbm-close {
   color: var(--text-muted);
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
+  padding: 4px;
+  transition: var(--transition);
 }
 .cbm-close:hover { color: var(--text-primary); background: var(--bg-hover); }
 
 .cbm-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
-
-.cbm-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+.cbm-field { display: flex; flex-direction: column; gap: 6px; }
 .cbm-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .cbm-task-input {
@@ -68,63 +63,60 @@
   gap: 8px;
 }
 .cbm-add-btn {
-  padding: 12px 14px;
+  padding: 0 16px;
   flex-shrink: 0;
 }
 
 .cbm-task-list {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  list-style: none;
+  gap: 0;
+  margin-top: 8px;
+  border: 1px solid var(--border-subtle);
 }
 .cbm-task-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
+  padding: 8px 12px;
   font-size: 13px;
-  animation: slideUp 0.2s ease;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: var(--transition);
 }
-.cbm-task-item.do {
-  background: var(--green-dim);
-  border: 1px solid rgba(34,197,94,0.2);
-  color: var(--green);
-}
-.cbm-task-item.dont {
-  background: var(--red-dim);
-  border: 1px solid rgba(239,68,68,0.2);
-  color: var(--red);
-}
-.cbm-task-item span {
-  flex: 1;
-  font-weight: 500;
-}
+.cbm-task-item:last-child { border-bottom: none; }
+.cbm-task-item.do   { border-left: 3px solid var(--green); }
+.cbm-task-item.dont { border-left: 3px solid var(--red); }
 .cbm-remove {
-  color: currentColor;
-  opacity: 0.6;
+  color: var(--text-muted);
   padding: 2px;
-  border-radius: 4px;
+  flex-shrink: 0;
+  transition: var(--transition);
 }
-.cbm-remove:hover { opacity: 1; }
+.cbm-remove:hover { color: var(--red); }
 
 .cbm-warning {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(245,158,11,0.08);
-  border: 1px solid rgba(245,158,11,0.2);
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  color: var(--yellow);
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--yellow-dim);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-left: 3px solid var(--yellow);
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+[data-theme="light"] .cbm-warning {
+  border-color: rgba(180,83,9,0.25);
+  border-left-color: var(--yellow);
 }
 
 .cbm-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding-top: 4px;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
 }
