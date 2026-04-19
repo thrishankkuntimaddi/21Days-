@@ -13,11 +13,11 @@ export default defineConfig({
         name: '21Days+ Discipline Blocks',
         short_name: '21Days+',
         description: 'Build lasting habits through locked 21-day discipline blocks.',
-        theme_color: '#0a0a0f',
-        background_color: '#0a0a0f',
+        theme_color: '#050505',
+        background_color: '#050505',
         display: 'standalone',
-        scope: '/',
-        start_url: '/',
+        scope: '/21Days-/',
+        start_url: '/21Days-/',
         orientation: 'portrait',
         icons: [
           {

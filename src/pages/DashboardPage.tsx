@@ -38,10 +38,6 @@ export default function DashboardPage() {
     return () => unsubs.forEach(u => u());
   }, [user, blocks]);
 
-  async function handleLogout() {
-    await signOut(auth);
-    toast.success('Signed out');
-  }
 
   const activeBlocks    = blocks.filter(isBlockActive);
   const completedBlocks = blocks.filter(isBlockCompleted);
@@ -58,7 +54,6 @@ export default function DashboardPage() {
     return true;
   });
 
-  const initials  = user?.email?.[0]?.toUpperCase() ?? 'U';
   const todayFull = format(new Date(), 'EEEE, d MMMM');
   const year      = format(new Date(), 'yyyy');
 
