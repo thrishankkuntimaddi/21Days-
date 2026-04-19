@@ -310,11 +310,15 @@ a { text-decoration: none; color: inherit; }
   display: grid;
   grid-template-columns: 220px 1fr;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
   .app-layout {
     grid-template-columns: 1fr;
     padding-bottom: 64px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 }
