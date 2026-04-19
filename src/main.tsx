@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider>
       <ErrorBoundary>
-        <BrowserRouter>
+        <BrowserRouter basename="/21Days-/">
           <AuthProvider>
             <App />
             <Toaster

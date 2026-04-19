@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>21Days+</title>
+  <script>
+    // GitHub Pages SPA routing fix
+    // Saves current URL to sessionStorage, then redirects to base
+    // index.html will restore it
+    var pathSegmentsToKeep = 1; // keep "/21Days-/"
+    var l = window.location;
+    var base = l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/');
+    sessionStorage.redirect = l.href;
+    l.replace(
+      l.protocol + '//' + l.host + base + '/?p=1'
+    );
+  </script>
+</head>
+<body></body>
+</html>
