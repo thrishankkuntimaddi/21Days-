@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Black square background -->
+  <rect width="64" height="64" fill="#000000"/>
+
+  <!-- Accent top bar -->
+  <rect x="0" y="0" width="64" height="4" fill="#7c5cfc"/>
+
+  <!-- "21" text -->
+  <text
+    x="32"
+    y="36"
+    font-family="'Arial Black', 'Arial', sans-serif"
+    font-size="26"
+    font-weight="900"
+    fill="#ffffff"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="-2"
+  >21</text>
+
+  <!-- Small "+" superscript -->
+  <text
+    x="56"
+    y="20"
+    font-family="'Arial', sans-serif"
+    font-size="14"
+    font-weight="900"
+    fill="#7c5cfc"
+    text-anchor="middle"
+    dominant-baseline="middle"
+  >+</text>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="58" width="64" height="6" fill="#7c5cfc" opacity="0.6"/>
+</svg>
