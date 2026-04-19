@@ -2,17 +2,21 @@ import { useState, useEffect } from 'react';
 import type { Block, DayLog } from '../types';
 import { subscribeBlocks, subscribeLogs } from '../services/firestore';
 import { useAuth } from '../contexts/AuthContext';
-import Sidebar from '../components/Sidebar';
+import { useTheme } from '../contexts/ThemeContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 import BottomNav from '../components/BottomNav';
 import BlockCard from '../components/BlockCard';
 import CreateBlockModal from '../components/CreateBlockModal';
 import Spinner from '../components/Spinner';
-import { Plus, Flame, TrendingUp, CheckCircle2, Zap } from 'lucide-react';
+import { Plus, Flame, Sun, Moon, LogOut } from 'lucide-react';
 import { isBlockActive, isBlockCompleted, computeBlockStats } from '../utils';
+import toast from 'react-hot-toast';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { theme, toggle } = useTheme();
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [logsMap, setLogsMap] = useState<Record<string, DayLog[]>>({});
   const [loadingBlocks, setLoadingBlocks] = useState(true);
@@ -28,7 +32,6 @@ export default function DashboardPage() {
     return unsub;
   }, [user]);
 
-  // Subscribe to logs for each block
   useEffect(() => {
     if (!user || blocks.length === 0) return;
     const unsubs: (() => void)[] = [];
@@ -41,129 +44,155 @@ export default function DashboardPage() {
     return () => unsubs.forEach(u => u());
   }, [user, blocks]);
 
-  // Aggregate stats
-  const activeBlocks = blocks.filter(isBlockActive);
+  async function handleLogout() {
+    await signOut(auth);
+    toast.success('Signed out');
+  }
+
+  const activeBlocks    = blocks.filter(isBlockActive);
   const completedBlocks = blocks.filter(isBlockCompleted);
-  const totalStreak = activeBlocks.reduce((acc, b) => {
-    const stats = computeBlockStats(b, logsMap[b.id] ?? []);
-    return acc + stats.currentStreak;
-  }, 0);
-  const avgSuccess = (() => {
-    if (blocks.length === 0) return 0;
-    const percents = blocks.map(b => computeBlockStats(b, logsMap[b.id] ?? []).overallPercent);
-    return Math.round(percents.reduce((a, c) => a + c, 0) / percents.length);
-  })();
+  const totalStreak     = activeBlocks.reduce((acc, b) =>
+    acc + computeBlockStats(b, logsMap[b.id] ?? []).currentStreak, 0);
+  const avgSuccess = blocks.length === 0 ? 0 : Math.round(
+    blocks.map(b => computeBlockStats(b, logsMap[b.id] ?? []).overallPercent)
+          .reduce((a, c) => a + c, 0) / blocks.length
+  );
 
   const filteredBlocks = blocks.filter(b => {
-    if (filter === 'active') return isBlockActive(b) || (!isBlockCompleted(b) && !isBlockActive(b));
+    if (filter === 'active')    return isBlockActive(b) || (!isBlockCompleted(b) && !isBlockActive(b));
     if (filter === 'completed') return isBlockCompleted(b);
     return true;
   });
 
-  return (
-    <div className="app-layout">
-      <Sidebar />
+  const initials = user?.email?.[0]?.toUpperCase() ?? 'U';
 
-      <main className="dashboard-main">
-        {/* Header */}
-        <header className="dash-header">
-          <div className="dash-header-left">
-            <h1 className="dash-title">Dashboard</h1>
-            <p className="dash-subtitle">Track your locked discipline blocks</p>
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Desktop Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <div className="logo-icon"><Flame size={15} color="var(--accent)" /></div>
+          <span className="logo-text">21Days<span>+</span></span>
+        </div>
+        <nav className="sidebar-nav">
+          <a href="/" className="sidebar-link active">
+            <span>Dashboard</span>
+          </a>
+        </nav>
+        <button className="sidebar-theme-toggle" onClick={toggle}>
+          {theme === 'dark' ? <><Sun size={13} /> Light Mode</> : <><Moon size={13} /> Dark Mode</>}
+        </button>
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="user-avatar">{initials}</div>
+            <div className="user-info"><p className="user-email">{user?.email}</p></div>
           </div>
-          <button
-            className="btn-primary dash-create-btn"
-            onClick={() => setShowCreate(true)}
-            id="create-block-btn"
-          >
-            <Plus size={16} />
-            New Block
+          <button className="sidebar-signout" onClick={handleLogout} title="Sign out">
+            <LogOut size={14} />
           </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="dashboard-main" style={{ flex: 1 }}>
+
+        {/* Top bar */}
+        <header className="dash-topbar">
+          <div className="dash-topbar-left">
+            <div className="dash-topbar-logo">
+              <div className="dash-topbar-logo-icon">
+                <Flame size={14} color="#fff" />
+              </div>
+              <span className="dash-topbar-brand">21Days<span>+</span></span>
+            </div>
+            <div className="dash-topbar-divider" />
+            <span className="dash-topbar-title">Dashboard</span>
+          </div>
+
+          <div className="dash-topbar-right">
+            {/* User chip — desktop */}
+            <div className="dash-user-chip">
+              <div className="dash-user-avatar">{initials}</div>
+              <span className="dash-user-email">{user?.email}</span>
+            </div>
+
+            {/* Theme toggle */}
+            <button className="dash-theme-btn" onClick={toggle} title="Toggle theme">
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+
+            {/* New Block */}
+            <button
+              className="dash-new-btn"
+              onClick={() => setShowCreate(true)}
+              id="create-block-btn"
+            >
+              <Plus size={14} />
+              New Block
+            </button>
+          </div>
         </header>
 
-        {/* Stats Strip */}
-        <div className="dash-stats-strip fade-in">
-          <div className="dash-stat-card">
-            <div className="dsc-icon" style={{ background: 'rgba(124,92,252,0.15)', color: 'var(--accent)' }}>
-              <Flame size={18} />
-            </div>
-            <div>
-              <p className="dsc-val">{activeBlocks.length}</p>
-              <p className="dsc-label">Active Blocks</p>
-            </div>
+        {/* Stats row */}
+        <div className="dash-stats-row">
+          <div className="dash-stat">
+            <span className="dash-stat-num">{activeBlocks.length}</span>
+            <span className="dash-stat-label">Active</span>
           </div>
-          <div className="dash-stat-card">
-            <div className="dsc-icon" style={{ background: 'rgba(34,197,94,0.12)', color: 'var(--green)' }}>
-              <CheckCircle2 size={18} />
-            </div>
-            <div>
-              <p className="dsc-val">{completedBlocks.length}</p>
-              <p className="dsc-label">Completed</p>
-            </div>
+          <div className="dash-stat">
+            <span className="dash-stat-num">{completedBlocks.length}</span>
+            <span className="dash-stat-label">Completed</span>
           </div>
-          <div className="dash-stat-card">
-            <div className="dsc-icon" style={{ background: 'rgba(245,158,11,0.12)', color: 'var(--yellow)' }}>
-              <Zap size={18} />
-            </div>
-            <div>
-              <p className="dsc-val">{totalStreak}</p>
-              <p className="dsc-label">Total Streak</p>
-            </div>
+          <div className="dash-stat">
+            <span className="dash-stat-num">{totalStreak}</span>
+            <span className="dash-stat-label">Streak Days</span>
           </div>
-          <div className="dash-stat-card">
-            <div className="dsc-icon" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--red)' }}>
-              <TrendingUp size={18} />
-            </div>
-            <div>
-              <p className="dsc-val">{avgSuccess}%</p>
-              <p className="dsc-label">Avg Success</p>
-            </div>
+          <div className="dash-stat">
+            <span className="dash-stat-num">{avgSuccess}%</span>
+            <span className="dash-stat-label">Avg Success</span>
           </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="dash-filter-row">
+        {/* Filter tabs */}
+        <div className="dash-tabs">
           {(['all', 'active', 'completed'] as const).map(f => (
             <button
               key={f}
-              className={`dash-filter-btn ${filter === f ? 'active' : ''}`}
+              className={`dash-tab ${filter === f ? 'active' : ''}`}
               onClick={() => setFilter(f)}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
-              {f === 'all' && <span className="dash-count">{blocks.length}</span>}
-              {f === 'active' && <span className="dash-count">{activeBlocks.length}</span>}
-              {f === 'completed' && <span className="dash-count">{completedBlocks.length}</span>}
+              <span className="dash-tab-count">
+                {f === 'all' ? blocks.length : f === 'active' ? activeBlocks.length : completedBlocks.length}
+              </span>
             </button>
           ))}
         </div>
 
-        {/* Blocks Grid */}
-        {loadingBlocks ? (
-          <div className="dash-loading">
-            <Spinner size={32} />
-          </div>
-        ) : filteredBlocks.length === 0 ? (
-          <div className="dash-empty fade-in">
-            <div className="dash-empty-icon">🔒</div>
-            <h3>No blocks yet</h3>
-            <p>Create your first discipline block to start your journey</p>
-            <button className="btn-primary" onClick={() => setShowCreate(true)}>
-              <Plus size={16} /> Create Block
-            </button>
-          </div>
-        ) : (
-          <div className="dash-grid fade-in">
-            {filteredBlocks.map(block => (
-              <BlockCard
-                key={block.id}
-                block={block}
-                logs={logsMap[block.id] ?? []}
-              />
-            ))}
-          </div>
-        )}
+        {/* Content */}
+        <div className="dash-content">
+          {loadingBlocks ? (
+            <div className="dash-loading"><Spinner size={28} /></div>
+          ) : filteredBlocks.length === 0 ? (
+            <div className="dash-empty fade-in">
+              <div className="dash-empty-icon">🔒</div>
+              <h3>No blocks yet</h3>
+              <p>Create your first discipline block to start your journey</p>
+              <button className="dash-empty-btn" onClick={() => setShowCreate(true)}>
+                <Plus size={14} /> Create Block
+              </button>
+            </div>
+          ) : (
+            <div className="dash-grid fade-in">
+              {filteredBlocks.map(block => (
+                <BlockCard key={block.id} block={block} logs={logsMap[block.id] ?? []} />
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
+      {/* Mobile bottom nav */}
       <BottomNav onCreateBlock={() => setShowCreate(true)} />
 
       {showCreate && <CreateBlockModal onClose={() => setShowCreate(false)} />}
