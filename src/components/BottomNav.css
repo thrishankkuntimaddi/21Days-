@@ -1,0 +1,67 @@
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(17, 17, 24, 0.9);
+  border-top: 1px solid var(--border-subtle);
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.bnav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 20px;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-decoration: none;
+}
+.bnav-item:hover,
+.bnav-item.active {
+  color: var(--accent);
+}
+
+/* FAB center button */
+.bnav-create {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transition: var(--transition);
+  transform: translateY(-8px);
+}
+.bnav-create:hover {
+  background: #8b6dff;
+  box-shadow: 0 6px 28px var(--accent-glow);
+  transform: translateY(-10px) scale(1.05);
+}
+.bnav-create:active {
+  transform: translateY(-8px) scale(0.97);
+}
+
+@media (max-width: 768px) {
+  .bottom-nav { display: flex; }
+}
