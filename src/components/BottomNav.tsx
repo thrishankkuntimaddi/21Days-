@@ -1,8 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Plus, LogOut, LayoutDashboard } from 'lucide-react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
-import toast from 'react-hot-toast';
+import { NavLink } from 'react-router-dom';
+import { Plus, Settings, LayoutDashboard } from 'lucide-react';
 import './BottomNav.css';
 
 interface Props {
@@ -10,14 +7,6 @@ interface Props {
 }
 
 export default function BottomNav({ onCreateBlock }: Props) {
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    await signOut(auth);
-    toast.success('Signed out');
-    navigate('/');
-  }
-
   return (
     <nav className="bottom-nav">
       {/* Left: Home */}
@@ -41,12 +30,15 @@ export default function BottomNav({ onCreateBlock }: Props) {
         </div>
       )}
 
-      {/* Right: Sign out */}
+      {/* Right: Settings */}
       <div className="bnav-side" style={{ justifyContent: 'flex-end' }}>
-        <button className="bnav-item" onClick={handleLogout}>
-          <LogOut size={20} />
-          <span>Sign Out</span>
-        </button>
+        <NavLink
+          to="/settings"
+          className={({ isActive }) => `bnav-item ${isActive ? 'active' : ''}`}
+        >
+          <Settings size={20} />
+          <span>Settings</span>
+        </NavLink>
       </div>
     </nav>
   );

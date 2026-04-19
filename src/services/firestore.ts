@@ -1,6 +1,6 @@
 import {
-  collection, doc, addDoc, setDoc, getDoc,
-  updateDoc, deleteDoc, onSnapshot, query, orderBy,
+  collection, doc, addDoc, setDoc, getDoc, getDocs,
+  updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Block, DayLog } from '../types';
@@ -96,5 +96,57 @@ export async function saveNote(userId: string, blockId: string, date: string, no
     await updateDoc(ref, { note });
   } else {
     await setDoc(ref, { date, completions: {}, note });
+  }
+}
+
+// -------- BULK OPERATIONS --------
+
+export interface ExportData {
+  exportedAt: string;
+  blocks: Array<Block & { logs: DayLog[] }>;
+}
+
+/** Fetch all blocks and their logs for export */
+export async function exportUserData(userId: string): Promise<ExportData> {
+  const blockSnap = await getDocs(query(blocksRef(userId), orderBy('createdAt', 'desc')));
+  const blocks: Array<Block & { logs: DayLog[] }> = [];
+  for (const d of blockSnap.docs) {
+    const block = { id: d.id, ...d.data() } as Block;
+    const logSnap = await getDocs(logsRef(userId, d.id));
+    const logs: DayLog[] = logSnap.docs.map(l => l.data() as DayLog);
+    blocks.push({ ...block, logs });
+  }
+  return { exportedAt: new Date().toISOString(), blocks };
+}
+
+/** Import a previously exported data file — merges with existing data */
+export async function importUserData(userId: string, data: ExportData): Promise<void> {
+  if (!data?.blocks || !Array.isArray(data.blocks)) {
+    throw new Error('Invalid export file format');
+  }
+  for (const blockData of data.blocks) {
+    const { logs, id: _id, ...block } = blockData;
+    const ref = await addDoc(blocksRef(userId), {
+      ...block,
+      userId,
+      createdAt: block.createdAt ?? Date.now(),
+    });
+    if (Array.isArray(logs)) {
+      for (const log of logs) {
+        await setDoc(logRef(userId, ref.id, log.date), log);
+      }
+    }
+  }
+}
+
+/** Delete all blocks (and their logs) for a user */
+export async function resetAllBlocks(userId: string): Promise<void> {
+  const blockSnap = await getDocs(blocksRef(userId));
+  for (const d of blockSnap.docs) {
+    const logSnap = await getDocs(logsRef(userId, d.id));
+    const batch = writeBatch(db);
+    logSnap.docs.forEach(l => batch.delete(l.ref));
+    batch.delete(d.ref);
+    await batch.commit();
   }
 }

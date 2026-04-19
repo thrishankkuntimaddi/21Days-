@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import { useTheme } from '../contexts/ThemeContext';
-import { Flame, Lock, Mail, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { Flame, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '../components/Spinner';
 import './AuthPage.css';
 
 export default function AuthPage() {
-  const { theme, toggle } = useTheme();
   const [tab, setTab] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,11 +41,6 @@ export default function AuthPage() {
 
   return (
     <div className="auth-root">
-      {/* Theme toggle */}
-      <button className="auth-theme-btn" onClick={toggle}>
-        {theme === 'dark' ? <><Sun size={13} /> Light</> : <><Moon size={13} /> Dark</>}
-      </button>
-
       <div className="auth-card slide-up">
         {/* Logo */}
         <div className="auth-logo">

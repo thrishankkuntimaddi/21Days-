@@ -2,14 +2,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { LayoutDashboard, LogOut, Flame, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, LogOut, Flame, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './Sidebar.css';
 
 export default function Sidebar() {
   const { user } = useAuth();
-  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -36,15 +34,11 @@ export default function Sidebar() {
           <LayoutDashboard size={16} />
           <span>Dashboard</span>
         </NavLink>
+        <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+          <Settings size={16} />
+          <span>Settings</span>
+        </NavLink>
       </nav>
-
-      {/* Theme toggle */}
-      <button className="sidebar-theme-toggle" onClick={toggle}>
-        {theme === 'dark'
-          ? <><Sun size={14} /> Light Mode</>
-          : <><Moon size={14} /> Dark Mode</>
-        }
-      </button>
 
       {/* User */}
       <div className="sidebar-footer">

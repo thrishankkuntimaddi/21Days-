@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import type { Block, DayLog } from '../types';
 import { subscribeBlocks, subscribeLogs, updateBlock, deleteBlock } from '../services/firestore';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
 import BottomNav from '../components/BottomNav';
 import TrackingGrid from '../components/TrackingGrid';
 import Spinner from '../components/Spinner';
@@ -12,7 +11,7 @@ import StatsPanel from '../components/StatsPanel';
 import HeatmapChart from '../components/HeatmapChart';
 import {
   ArrowLeft, Lock, Flame, Calendar, CheckCircle2,
-  Zap, TrendingUp, Copy, Trash2, ChevronDown, ChevronUp, BarChart2, Sun, Moon, LogOut
+  Zap, TrendingUp, Copy, Trash2, ChevronDown, ChevronUp, BarChart2, LogOut
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -26,7 +25,6 @@ import './BlockPage.css';
 export default function BlockPage() {
   const { blockId } = useParams<{ blockId: string }>();
   const { user } = useAuth();
-  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
 
   const [blocks, setBlocks]               = useState<Block[]>([]);
@@ -129,14 +127,11 @@ export default function BlockPage() {
           <span className="logo-text">21Days<span>+</span></span>
         </div>
         <nav className="sidebar-nav">
-          <button className="sidebar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+          <button className="sidebar-link" style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: 'var(--font-sans)' }}
             onClick={() => navigate('/')}>
             <ArrowLeft size={14} /> Dashboard
           </button>
         </nav>
-        <button className="sidebar-theme-toggle" onClick={toggle}>
-          {theme === 'dark' ? <><Sun size={13} /> Light Mode</> : <><Moon size={13} /> Dark Mode</>}
-        </button>
         <div className="sidebar-footer">
           <div className="sidebar-user">
             <div className="user-avatar">{initials}</div>

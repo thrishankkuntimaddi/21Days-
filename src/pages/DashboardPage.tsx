@@ -1,45 +1,39 @@
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import type { Block, DayLog } from '../types';
 import { subscribeBlocks, subscribeLogs } from '../services/firestore';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import Sidebar from '../components/Sidebar';
 import BottomNav from '../components/BottomNav';
 import BlockCard from '../components/BlockCard';
 import CreateBlockModal from '../components/CreateBlockModal';
 import Spinner from '../components/Spinner';
-import { Plus, Flame, Sun, Moon, LogOut } from 'lucide-react';
+import { Plus, Settings } from 'lucide-react';
 import { isBlockActive, isBlockCompleted, computeBlockStats } from '../utils';
-import toast from 'react-hot-toast';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { theme, toggle } = useTheme();
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [logsMap, setLogsMap] = useState<Record<string, DayLog[]>>({});
-  const [loadingBlocks, setLoadingBlocks] = useState(true);
+  const navigate = useNavigate();
+  const [blocks, setBlocks]         = useState<Block[]>([]);
+  const [logsMap, setLogsMap]       = useState<Record<string, DayLog[]>>({});
+  const [loading, setLoading]       = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [filter, setFilter]         = useState<'all' | 'active' | 'completed'>('all');
 
   useEffect(() => {
     if (!user) return;
-    const unsub = subscribeBlocks(user.uid, (b) => {
-      setBlocks(b);
-      setLoadingBlocks(false);
-    });
-    return unsub;
+    return subscribeBlocks(user.uid, (b) => { setBlocks(b); setLoading(false); });
   }, [user]);
 
   useEffect(() => {
     if (!user || blocks.length === 0) return;
     const unsubs: (() => void)[] = [];
     blocks.forEach(block => {
-      const unsub = subscribeLogs(user.uid, block.id, (logs) => {
-        setLogsMap(prev => ({ ...prev, [block.id]: logs }));
-      });
-      unsubs.push(unsub);
+      unsubs.push(subscribeLogs(user.uid, block.id, (logs) =>
+        setLogsMap(prev => ({ ...prev, [block.id]: logs }))
+      ));
     });
     return () => unsubs.forEach(u => u());
   }, [user, blocks]);
@@ -64,96 +58,64 @@ export default function DashboardPage() {
     return true;
   });
 
-  const initials = user?.email?.[0]?.toUpperCase() ?? 'U';
+  const initials  = user?.email?.[0]?.toUpperCase() ?? 'U';
+  const todayFull = format(new Date(), 'EEEE, d MMMM');
+  const year      = format(new Date(), 'yyyy');
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Desktop Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-logo">
-          <div className="logo-icon"><Flame size={15} color="var(--accent)" /></div>
-          <span className="logo-text">21Days<span>+</span></span>
-        </div>
-        <nav className="sidebar-nav">
-          <a href="/" className="sidebar-link active">
-            <span>Dashboard</span>
-          </a>
-        </nav>
-        <button className="sidebar-theme-toggle" onClick={toggle}>
-          {theme === 'dark' ? <><Sun size={13} /> Light Mode</> : <><Moon size={13} /> Dark Mode</>}
-        </button>
-        <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <div className="user-avatar">{initials}</div>
-            <div className="user-info"><p className="user-email">{user?.email}</p></div>
+    <div className="app-layout">
+      {/* Desktop sidebar */}
+      <Sidebar />
+
+      <main className="dash-main">
+
+        {/* ── Top bar ── */}
+        <header className="dash-header">
+          <div className="dash-header-left">
+            <div className="dash-logo-mark">🔥</div>
+            <span className="dash-logo-name">21Days<strong>+</strong></span>
           </div>
-          <button className="sidebar-signout" onClick={handleLogout} title="Sign out">
-            <LogOut size={14} />
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="dashboard-main" style={{ flex: 1 }}>
-
-        {/* Top bar */}
-        <header className="dash-topbar">
-          <div className="dash-topbar-left">
-            <div className="dash-topbar-logo">
-              <div className="dash-topbar-logo-icon">
-                <Flame size={14} color="#fff" />
-              </div>
-              <span className="dash-topbar-brand">21Days<span>+</span></span>
-            </div>
-            <div className="dash-topbar-divider" />
-            <span className="dash-topbar-title">Dashboard</span>
-          </div>
-
-          <div className="dash-topbar-right">
-            {/* User chip — desktop */}
-            <div className="dash-user-chip">
-              <div className="dash-user-avatar">{initials}</div>
-              <span className="dash-user-email">{user?.email}</span>
-            </div>
-
-            {/* Theme toggle */}
-            <button className="dash-theme-btn" onClick={toggle} title="Toggle theme">
-              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          <div className="dash-header-right">
+            <button className="dash-icon-btn" onClick={() => navigate('/settings')} title="Settings">
+              <Settings size={16} />
             </button>
-
-            {/* New Block */}
             <button
               className="dash-new-btn"
               onClick={() => setShowCreate(true)}
               id="create-block-btn"
             >
-              <Plus size={14} />
-              New Block
+              <Plus size={14} /> New Block
             </button>
           </div>
         </header>
 
-        {/* Stats row */}
-        <div className="dash-stats-row">
-          <div className="dash-stat">
-            <span className="dash-stat-num">{activeBlocks.length}</span>
-            <span className="dash-stat-label">Active</span>
+        {/* ── Date section ── */}
+        <div className="dash-date-section">
+          <p className="dash-date-day">{todayFull}</p>
+          <p className="dash-date-year">{year}</p>
+        </div>
+
+        {/* ── Stats grid ── */}
+        <div className="dash-stats-grid">
+          <div className="dash-stat-item">
+            <span className="dash-stat-num" style={{ color: 'var(--accent)' }}>{activeBlocks.length}</span>
+            <span className="dash-stat-lbl">Active</span>
           </div>
-          <div className="dash-stat">
-            <span className="dash-stat-num">{completedBlocks.length}</span>
-            <span className="dash-stat-label">Completed</span>
+          <div className="dash-stat-item">
+            <span className="dash-stat-num" style={{ color: 'var(--green)' }}>{completedBlocks.length}</span>
+            <span className="dash-stat-lbl">Completed</span>
           </div>
-          <div className="dash-stat">
-            <span className="dash-stat-num">{totalStreak}</span>
-            <span className="dash-stat-label">Streak Days</span>
+          <div className="dash-stat-item">
+            <span className="dash-stat-num" style={{ color: 'var(--yellow)' }}>{totalStreak}</span>
+            <span className="dash-stat-lbl">Streak days</span>
           </div>
-          <div className="dash-stat">
+          <div className="dash-stat-item">
             <span className="dash-stat-num">{avgSuccess}%</span>
-            <span className="dash-stat-label">Avg Success</span>
+            <span className="dash-stat-lbl">Avg success</span>
           </div>
         </div>
 
-        {/* Filter tabs */}
+        {/* ── Segmented tabs ── */}
         <div className="dash-tabs">
           {(['all', 'active', 'completed'] as const).map(f => (
             <button
@@ -162,16 +124,16 @@ export default function DashboardPage() {
               onClick={() => setFilter(f)}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
-              <span className="dash-tab-count">
+              <span className="dash-tab-pill">
                 {f === 'all' ? blocks.length : f === 'active' ? activeBlocks.length : completedBlocks.length}
               </span>
             </button>
           ))}
         </div>
 
-        {/* Content */}
+        {/* ── Content ── */}
         <div className="dash-content">
-          {loadingBlocks ? (
+          {loading ? (
             <div className="dash-loading"><Spinner size={28} /></div>
           ) : filteredBlocks.length === 0 ? (
             <div className="dash-empty fade-in">
@@ -190,6 +152,7 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
       </main>
 
       {/* Mobile bottom nav */}

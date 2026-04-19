@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import BlockPage from './pages/BlockPage';
+import SettingsPage from './pages/SettingsPage';
 import Spinner from './components/Spinner';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<DashboardPage />} />
       <Route path="/block/:blockId" element={<BlockPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
